@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Помощник врача — концепция</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: #1a1d24;
+    color: #e8eaed;
+    overflow: hidden;
+    height: 100vh;
+  }
+  .slide {
+    display: none;
+    height: 100vh;
+    padding: 60px 80px;
+    flex-direction: column;
+    justify-content: center;
+    animation: fade 0.3s ease;
+  }
+  .slide.active { display: flex; }
+  @keyframes fade { from { opacity: 0; transform: translateY(8px);} to { opacity: 1; transform: none;} }
+
+  h1 { font-size: 42px; font-weight: 700; margin-bottom: 24px; line-height: 1.2; }
+  h2 { font-size: 34px; font-weight: 700; margin-bottom: 32px; color: #7cc4ff; }
+  p  { font-size: 22px; line-height: 1.6; margin-bottom: 16px; color: #cfd3da; max-width: 1000px; }
+  ul { list-style: none; }
+  li { font-size: 22px; line-height: 1.7; margin-bottom: 14px; padding-left: 32px; position: relative; color: #cfd3da; }
+  li::before {
+    content: "→";
+    position: absolute; left: 0; color: #7cc4ff; font-weight: 700;
+  }
+  .tag {
+    display: inline-block;
+    background: #2a3040;
+    color: #7cc4ff;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 24px;
+    text-transform: uppercase;
+  }
+  .big {
+    font-size: 28px;
+    color: #e8eaed;
+    line-height: 1.5;
+    max-width: 1000px;
+    margin-bottom: 20px;
+  }
+  .big strong { color: #7cc4ff; }
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1100px;
+  }
+  .card {
+    background: #232833;
+    border-radius: 14px;
+    padding: 28px 32px;
+    border: 1px solid #2e3542;
+  }
+  .card h3 {
+    font-size: 20px;
+    color: #7cc4ff;
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+  .card.in h3 { color: #6ee7a7; }
+  .card.out h3 { color: #ff8080; }
+  .card li { font-size: 18px; margin-bottom: 10px; padding-left: 24px; }
+  .card li::before { content: "•"; color: #6b7280; }
+  .card.in li::before { color: #6ee7a7; content: "✓"; }
+  .card.out li::before { color: #ff8080; content: "✕"; }
+
+  .steps { counter-reset: step; max-width: 1000px; }
+  .steps li {
+    counter-increment: step;
+    padding-left: 60px;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #2a3040;
+    font-size: 20px;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .steps li::before {
+    content: counter(step);
+    position: absolute; left: 0; top: 0;
+    width: 40px; height: 40px;
+    background: #7cc4ff;
+    color: #1a1d24;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 18px;
+  }
+
+  .metric {
+    background: #232833;
+    border-left: 4px solid #7cc4ff;
+    padding: 20px 28px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    max-width: 1000px;
+  }
+  .metric .label { font-size: 14px; color: #7cc4ff; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .metric .value { font-size: 20px; color: #e8eaed; line-height: 1.5; }
+
+  .hypo {
+    background: linear-gradient(135deg, #1e3a5f, #2a3040);
+    border-radius: 16px;
+    padding: 36px 40px;
+    max-width: 1000px;
+    border: 1px solid #35507a;
+  }
+  .hypo p { font-size: 22px; margin: 0; }
+
+  .footer-nav {
+    position: fixed;
+    bottom: 24px;
+    right: 32px;
+    font-size: 14px;
+    color: #6b7280;
+    letter-spacing: 1px;
+  }
+  .title-slide {
+    background: radial-gradient(circle at 30% 50%, #1e3a5f 0%, #1a1d24 70%);
+  }
+  .title-slide h1 { font-size: 52px; }
+  .title-slide .sub { font-size: 22px; color: #9aa3b2; margin-top: 20px; max-width: 800px; }
+
+  .quote {
+    font-size: 26px;
+    line-height: 1.5;
+    color: #e8eaed;
+    max-width: 950px;
+    padding-left: 24px;
+    border-left: 3px solid #7cc4ff;
+    font-style: italic;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1 -->
+<section class="slide active title-slide">
+  <span class="tag">Концепция · MVP</span>
+  <h1>Помощник врача для подготовки черновика посыльного листа</h1>
+  <p class="sub">Сервис не принимает медицинских решений.<br>Он уменьшает ручной перенос сведений из внешних документов в посыльный лист.</p>
+</section>
+
+<!-- 2 -->
+<section class="slide">
+  <span class="tag">Пользователь и ситуация</span>
+  <h2>Кто и когда</h2>
+  <p class="big">Врач общей практики — или другой врач, оформляющий посыльный лист.</p>
+  <p class="big">Пациент приносит результаты обследований, консультаций и заключения из сторонних организаций.</p>
+  <p class="big">Врачу нужно <strong>перенести значимые сведения</strong> из нескольких бумажных документов в установленную форму.</p>
+</section>
+
+<!-- 3 -->
+<section class="slide">
+  <span class="tag">Проблема</span>
+  <h2>Как это происходит сейчас</h2>
+  <ul>
+    <li>Врач ксерокопирует документы и вручную перепечатывает данные</li>
+    <li>Процесс повторяемый и занимает время</li>
+    <li>Результат зависит от внимательности при переносе дат, показателей и формулировок</li>
+    <li>Ручной способ сохраняет контроль врача, но не помогает быстро собрать сведения из нескольких источников</li>
+  </ul>
+</section>
+
+<!-- 4 -->
+<section class="slide">
+  <span class="tag">Предлагаемое изменение</span>
+  <h2>Что делает сервис</h2>
+  <ul>
+    <li>Формирует черновик посыльного листа из скана или фотографии документа</li>
+    <li>Для каждого извлечённого поля врач видит фрагмент источника</li>
+    <li>Может исправить значение — и только после этого подтверждает итог</li>
+    <li>Цель — сократить рутинный ввод, а не ставить диагноз и не интерпретировать исследования</li>
+  </ul>
+</section>
+
+<!-- 5 -->
+<section class="slide">
+  <span class="tag">Основной сценарий</span>
+  <h2>Четыре шага</h2>
+  <ol class="steps">
+    <li>Врач загружает синтетический или полностью обезличенный скан документа</li>
+    <li>Сервис распознаёт текст и предлагает значения 5–7 заранее выбранных полей</li>
+    <li>Врач открывает фрагмент источника для каждого поля, исправляет неточности и подтверждает черновик</li>
+    <li>Врач получает заполненный черновик — основу для дальнейшего оформления</li>
+  </ol>
+</section>
+
+<!-- 6 -->
+<section class="slide">
+  <span class="tag">Граница MVP</span>
+  <h2>Что входит и что — нет</h2>
+  <div class="grid2">
+    <div class="card in">
+      <h3>Входит в MVP</h3>
+      <ul>
+        <li>Загрузка одного скана или фото</li>
+        <li>OCR</li>
+        <li>Извлечение 5–7 полей</li>
+        <li>Черновик листа и показ источника</li>
+      </ul>
+    </div>
+    <div class="card out">
+      <h3>Сознательно не входит</h3>
+      <ul>
+        <li>Интеграция с МИС</li>
+        <li>Работа со всеми типами документов</li>
+        <li>Личные кабинеты</li>
+        <li>Хранение реальных персональных данных</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 7 -->
+<section class="slide">
+  <span class="tag">Ценность и метрики</span>
+  <h2>Что измеряем</h2>
+  <div class="metric">
+    <div class="label">Основная метрика</div>
+    <div class="value">Медианное время подготовки одного посыльного листа. Базовая линия — замер ручного заполнения на 10 обезличенных кейсах.</div>
+  </div>
+  <div class="metric">
+    <div class="label">Дополнительные</div>
+    <div class="value">Доля полей, исправленных врачом · число критичных ошибок, дошедших до подтверждения · понятность источника поля без пояснений</div>
+  </div>
+  <div class="metric">
+    <div class="label">Ожидаемая ценность</div>
+    <div class="value">Сокращение времени на повторяемую работу при сохранении проверки и ответственности врача за итоговый документ.</div>
+  </div>
+</section>
+
+<!-- 8 -->
+<section class="slide">
+  <span class="tag">Гипотеза и проверка</span>
+  <h2>Что проверяем первым</h2>
+  <div class="hypo">
+    <p>Если врач получает черновик с фрагментом источника для каждого поля, то на 10 обезличенных кейсах медианное время подготовки сократится <strong>минимум на 50 %</strong>, а критичные ошибки не останутся после проверки врачом.</p>
+  </div>
+  <p style="margin-top:28px;">Ближайшая проверка: за две недели подготовить 10 кейсов, задать эталонное заполнение и сравнить ручной сценарий с работой через черновик. Зафиксировать время, все исправления и замечания врача.</p>
+</section>
+
+<!-- 9 -->
+<section class="slide">
+  <span class="tag">Факты, предположения, вопросы</span>
+  <h2>Что уже знаем и что — нет</h2>
+  <ul>
+    <li><strong style="color:#6ee7a7;">Факт:</strong> врачу приходится переносить сведения вручную; документы могут иметь разные форматы</li>
+    <li><strong style="color:#f0c674;">Предположение:</strong> черновик с источниками сократит время минимум на 50 % и не создаст новых критичных ошибок</li>
+    <li><strong style="color:#7cc4ff;">Вопрос:</strong> какие типы документов и поля встречаются чаще всего и должны войти в первую версию?</li>
+    <li><strong style="color:#7cc4ff;">Вопрос:</strong> какой защищённый контур потребуется при переходе к реальному использованию?</li>
+  </ul>
+</section>
+
+<!-- 10 -->
+<section class="slide">
+  <span class="tag">Решение после проверки</span>
+  <h2>Куда двигаемся дальше</h2>
+  <p class="quote">Продолжить и расширять MVP — если время сокращается не менее чем на 50 % и врач уверенно замечает все критичные ошибки до подтверждения.</p>
+  <p class="quote" style="margin-top:24px;">Если экономии нет или ошибки систематически остаются незамеченными — сузить концепцию до поиска и подсветки нужных фрагментов либо изменить способ представления черновика.</p>
+</section>
+
+<div class="footer-nav"><span id="page">1</span> / 10 &nbsp;·&nbsp; ← →</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let i = 0;
+  function show(n) {
+    slides[i].classList.remove('active');
+    i = (n + slides.length) % slides.length;
+    slides[i].classList.add('active');
+    document.getElementById('page').textContent = i + 1;
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') show(i + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') show(i - 1);
+  });
+  document.addEventListener('click', () => show(i + 1));
+</script>
+
+</body>
+</html>
